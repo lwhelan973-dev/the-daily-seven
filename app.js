@@ -565,7 +565,7 @@ function results() {
  if (!S.final) { S.final = true; const st = store.get('stats', {played: 0, streak: 0, best: 0, last: -9}); st.played++; st.streak = st.last === TODAY - 1 ? st.streak + 1 : 1; st.best = Math.max(st.best, total); st.last = TODAY; store.set('stats', st); save(); }
  const st = store.get('stats', {played: 1, streak: 1, best: total});
  const sq = s => s >= 80 ? '🟩' : s >= 40 ? '🟨' : '🟥';
- const share = `The Daily Seven No. ${NUM} — ${total}/700\n${S.scores.map(sq).join('')}`;
+ const share = `The Daily Seven No. ${NUM} — ${total}/700\n${S.scores.map(sq).join('')}\nthedailyseven.com`;
  const v = total >= 600 ? 'Off the charts.' : total >= 450 ? 'Seriously strong.' : total >= 300 ? 'Solid run.' : 'Systems recharging — tomorrow brings a new seven.';
  card(`<div class="hero res"><div class="hero-t"><p class="kicker">Today's score · No. ${NUM}</p><div class="big">${total}<small>/700</small></div><p class="lede strong">${v}</p>
   <div class="stats"><div><b>${st.streak}</b><span>Day streak</span></div><div><b>${st.played}</b><span>Played</span></div><div><b>${st.best}</b><span>Best</span></div></div></div>
