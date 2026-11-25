@@ -140,16 +140,41 @@ function order(el, ctx, {items, top, bottom}) {
   ctx.done(ok / tot * 100, ok === tot ? 'Perfect order.' : `${ok} of ${tot} pairs in the right order.`); };
 }
 
+/* themed autocomplete (replaces the browser's own datalist dropdown) */
+function autocomplete(inp, ul, list) {
+ let items = [], act = -1;
+ const close = () => { ul.hidden = true; inp.setAttribute('aria-expanded', 'false'); act = -1; };
+ const paint = () => { ul.innerHTML = items.map((t, i) => `<li role="option" id="${ul.id}-${i}" class="${i === act ? 'on' : ''}" aria-selected="${i === act}"><span>${hl(t)}</span></li>`).join(''); inp.setAttribute('aria-activedescendant', act >= 0 ? `${ul.id}-${act}` : '');
+  ul.querySelectorAll('li').forEach((li, i) => li.onmousedown = e => { e.preventDefault(); pick(i); }); };
+ let q = '';
+ const hl = t => { const n = t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''), k = n.indexOf(q); return k < 0 || !q ? esc(t) : esc(t.slice(0, k)) + '<b>' + esc(t.slice(k, k + q.length)) + '</b>' + esc(t.slice(k + q.length)); };
+ const update = () => { q = inp.value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (q.length < 1) return close();
+  const sc = t => { const n = t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); if (n.startsWith(q)) return 0; if (n.split(/[^a-z0-9]+/).some(w => w.startsWith(q))) return 1; return n.includes(q) ? 2 : 9; };
+  items = list.map(t => [sc(t), t]).filter(x => x[0] < 9).sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1])).slice(0, 6).map(x => x[1]);
+  if (!items.length) return close(); act = -1; ul.hidden = false; inp.setAttribute('aria-expanded', 'true'); paint(); };
+ const pick = i => { inp.value = items[i]; close(); inp.focus(); };
+ inp.addEventListener('input', update);
+ inp.addEventListener('blur', () => setTimeout(close, 120));
+ inp.addEventListener('keydown', e => { if (ul.hidden) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); act = (act + 1) % items.length; paint(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); act = (act - 1 + items.length) % items.length; paint(); }
+  else if (e.key === 'Enter' && act >= 0) { e.preventDefault(); pick(act); }
+  else if (e.key === 'Escape') { close(); } });
+ inp.form && inp.form.addEventListener('submit', close);
+}
+
 /* clue reveal + typed answer */
 function clues(el, ctx, {vis, clues, accept, answer, list, scores, word, placeholder}) {
  let shown = 1, over = false; const wrong = [];
  const lid = 'dl' + Math.floor(Math.random() * 1e6);
- el.innerHTML = `${vis || ''}<div class="reel" id="reel"></div><form id="ff" class="row" autocomplete="off"><input class="inp" id="fi" list="${lid}" placeholder="${esc(placeholder)}" aria-label="${esc(placeholder)}" style="flex:1 1 220px"><datalist id="${lid}">${list.map(t => `<option value="${esc(t)}">`).join('')}</datalist><button class="btn">Guess</button><button type="button" class="btn ghost" id="skip">Next ${word}</button></form><div class="chips" id="wr"></div>`;
+ el.innerHTML = `${vis || ''}<div class="reel" id="reel"></div><form id="ff" class="row" autocomplete="off"><div class="acwrap"><input class="inp" id="fi" role="combobox" aria-expanded="false" aria-controls="${lid}" aria-autocomplete="list" placeholder="${esc(placeholder)}" aria-label="${esc(placeholder)}" autocomplete="off" spellcheck="false"><ul class="ac" id="${lid}" role="listbox" hidden></ul></div><button class="btn">Guess</button><button type="button" class="btn ghost" id="skip">Next ${word}</button></form><div class="chips" id="wr"></div>`;
  const reel = () => { $('#reel').innerHTML = clues.map((c, i) => `<div class="frame ${i < shown ? 'on' : ''}"><em>${esc(word)} ${i + 1}<small>${scores[i]} pts</small></em><span>${i < shown ? esc(c) : '— locked —'}</span></div>`).join(''); };
  reel();
  const end = (sc, msg) => { over = true; shown = clues.length; reel(); disableAll($('#ff')); ctx.done(sc, msg); };
  const advance = () => { if (shown < clues.length) { shown++; reel(); } else end(0, `It was <b>${esc(answer)}</b>.`); };
  $('#skip').onclick = () => { if (!over) advance(); };
+ autocomplete($('#fi'), $('#' + lid), list);
  $('#ff').onsubmit = e => { e.preventDefault(); if (over) return; const g = $('#fi').value.trim(); if (!g) return;
   if (accept(norm(g))) return end(scores[shown - 1], `Yes — <b>${esc(answer)}</b>, on ${word.toLowerCase()} ${shown}.`);
   wrong.push(g); $('#wr').innerHTML = wrong.map(w => `<span class="chip">${esc(w)}</span>`).join(''); $('#fi').value = ''; advance(); };
@@ -459,7 +484,7 @@ M['hist.year'] = {name:'Year dial', how:'Pin an event to its year.', run(el, ctx
 }};
 M['hist.whoami'] = {name:'Who am I?', how:'Identify a historical figure from clues.', run(el, ctx) {
  const [name, al, cl] = ctx.pick(D.FIGURES);
- const extra = ['Henry VIII', 'Queen Victoria', 'Charles Dickens', 'Pablo Picasso', 'Ludwig van Beethoven', 'Socrates', 'George Washington', 'John F. Kennedy', 'Elvis Presley', 'Stephen Hawking', 'Charles Babbage', 'Thomas Edison', 'Nikola Tesla', 'Vincent van Gogh', 'Mother Teresa', 'Eamon de Valera', 'Countess Markievicz', 'Wolfe Tone', 'Brian Boru', 'Saint Patrick', 'Anne Frank', 'Karl Marx', 'Sigmund Freud', 'Emmeline Pankhurst'];
+ const extra = ['Henry VIII', 'Charles Dickens', 'Pablo Picasso', 'Ludwig van Beethoven', 'Socrates', 'John F. Kennedy', 'Elvis Presley', 'Stephen Hawking', 'Charles Babbage', 'Thomas Edison', 'Vincent van Gogh', 'Mother Teresa', 'Simón Bolívar', 'Catherine the Great', 'Confucius', 'Martin Luther', 'Anne Frank', 'Karl Marx', 'Sigmund Freud', 'Emmeline Pankhurst', 'Wright brothers', 'Marco Polo', 'Hatshepsut', 'Akbar the Great'];
  ctx.title('Who am I?', 'Clues unlock one at a time, hardest first. Name me early for more points.');
  clues(el, ctx, {clues: cl, word: 'Clue', scores: [100, 75, 50, 25], answer: name, placeholder: 'Type a name…', list: D.FIGURES.map(f => f[0]).concat(extra).sort(), accept: acceptor(name, al)});
 }};
@@ -560,6 +585,40 @@ function round(i) {
  M[key].run($('#stage'), ctx);
 }
 
+/* ---------- worldwide leaderboard (Supabase) ---------- */
+const CFG = window.D7_CONFIG || {};
+const LB_ON = !!(CFG.supabaseUrl && CFG.supabaseKey);
+let LAST_PCT = null;
+async function rpc(fn, args) {
+ const h = {'Content-Type': 'application/json', apikey: CFG.supabaseKey};
+ if (/^eyJ/.test(CFG.supabaseKey)) h.Authorization = 'Bearer ' + CFG.supabaseKey;
+ const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 8000);
+ try { const r = await fetch(CFG.supabaseUrl.replace(/\/+$/, '') + '/rest/v1/rpc/' + fn, {method: 'POST', headers: h, body: JSON.stringify(args), signal: ctl.signal});
+  if (!r.ok) throw new Error('HTTP ' + r.status); const t = await r.text(); return t ? JSON.parse(t) : null; } finally { clearTimeout(to); }
+}
+function deviceId() { let d = store.get('device', null); if (!d) { d = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }); store.set('device', d); } return d; }
+function playerName() { let n = store.get('name', null); if (!n) { n = 'Player ' + (1000 + Math.floor(Math.random() * 9000)); store.set('name', n); } return n; }
+async function board(total) {
+ const el = $('#lb'); if (!el || !LB_ON) return;
+ el.hidden = false; el.innerHTML = '<p class="small">Connecting to the worldwide leaderboard…</p>';
+ const args = {p_day: TODAY, p_device: deviceId(), p_name: playerName(), p_total: total, p_rounds: S.scores.map(x => x || 0)};
+ try {
+  await rpc('submit_score', args);
+  const st = await rpc('day_stats', {p_day: TODAY, p_device: args.p_device});
+  if (!el.isConnected) return;
+  const players = +st.players || 0, below = +st.below || 0, rank = (+st.above || 0) + 1;
+  const pct = players > 1 ? Math.round(below / (players - 1) * 100) : null; LAST_PCT = pct;
+  const top = st.top || [], meIn = top.some(r => r.is_me);
+  const row = (r, i) => `<li class="${r.is_me ? 'me' : ''}"><span class="rk">${i}</span><span class="nm">${esc(r.name)}${r.is_me ? ' <em>you</em>' : ''}</span><b>${+r.total}</b></li>`;
+  el.innerHTML = `<div class="lbhead"><div class="pct">${pct == null ? 'First!' : pct + '%'}</div><div><b>${pct == null ? 'You\'re the first player to finish today.' : `You did better than ${pct}% of players today.`}</b><span class="small">Rank ${rank.toLocaleString()} of ${players.toLocaleString()} players worldwide</span></div></div>
+   <h3>Today's top 10 · worldwide</h3><ol class="lbl">${top.map((r, i) => row(r, i + 1)).join('')}${!meIn && st.me ? `<li class="gap">⋯</li>${row({name: st.me.name, total: st.me.total, is_me: true}, rank)}` : ''}</ol>
+   <label class="small" for="nmi" style="display:block;margin-top:14px">Your name on the leaderboard</label><form class="row" id="nmf" autocomplete="off" style="margin-top:6px"><input class="inp" id="nmi" maxlength="20" value="${esc(playerName())}" aria-label="Your leaderboard name" style="flex:1 1 180px"><button class="btn ghost">Save name</button></form>`;
+  $('#nmf').onsubmit = async e => { e.preventDefault(); const v = $('#nmi').value.replace(/[<>]/g, '').trim().slice(0, 20); if (!v) return; store.set('name', v); el.querySelector('#nmf button').textContent = 'Saving…'; await board(total); };
+ } catch (e) {
+  if (el.isConnected) el.innerHTML = '<p class="small">The worldwide leaderboard is unavailable right now. Your score is saved on this device — check back later.</p>';
+ }
+}
+
 function results() {
  head(-1); const total = S.scores.reduce((a, b) => a + (b || 0), 0);
  if (!S.final) { S.final = true; const st = store.get('stats', {played: 0, streak: 0, best: 0, last: -9}); st.played++; st.streak = st.last === TODAY - 1 ? st.streak + 1 : 1; st.best = Math.max(st.best, total); st.last = TODAY; store.set('stats', st); save(); }
@@ -571,9 +630,11 @@ function results() {
   <div class="stats"><div><b>${st.streak}</b><span>Day streak</span></div><div><b>${st.played}</b><span>Played</span></div><div><b>${st.best}</b><span>Best</span></div></div></div>
   <div class="hero-r">${ring(S.scores, total, 'of 700')}</div></div>
   <div class="bars">${LINE.map((k, i) => { const c = k.split('.')[0]; return `<div class="bar" style="--c:${col(c)}"><span>${esc(M[k].name)}</span><div class="tr"><i data-w="${S.scores[i] || 0}"></i></div><b>${S.scores[i] || 0}</b></div>`; }).join('')}</div>
+  <section class="lb" id="lb" hidden></section>
   <div class="row"><button class="btn" id="cp">Copy result</button><a class="btn ghost" href="#practice">Keep playing · practice</a><span class="small" id="cd" style="margin-left:auto"></span></div>`);
  requestAnimationFrame(() => document.querySelectorAll('.bar i').forEach(x => x.style.width = x.dataset.w + '%'));
- $('#cp').onclick = async () => { try { await navigator.clipboard.writeText(share); $('#cp').textContent = 'Copied!'; } catch (e) { $('#cp').textContent = 'Copy blocked here'; } };
+ board(total);
+ $('#cp').onclick = async () => { try { await navigator.clipboard.writeText(share + (LAST_PCT != null ? `\nBetter than ${LAST_PCT}% of players worldwide` : '')); $('#cp').textContent = 'Copied!'; } catch (e) { $('#cp').textContent = 'Copy blocked here'; } };
  const tick = () => { const e = $('#cd'); if (!e) return clearInterval(iv); const m = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) - new Date(); if (m <= 0) { e.textContent = 'A new seven is ready — refresh!'; return; }
   e.textContent = `Next seven in ${Math.floor(m / 36e5)}h ${String(Math.floor(m % 36e5 / 6e4)).padStart(2, '0')}m ${String(Math.floor(m % 6e4 / 1e3)).padStart(2, '0')}s`; };
  const iv = setInterval(tick, 1000); tick();
