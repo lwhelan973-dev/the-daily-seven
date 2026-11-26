@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · The Daily Seven</title>
+<meta name="description" content="How The Daily Seven handles your data.">
+<meta name="theme-color" content="#03050d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M16 4h32l16 28-16 28H16L0 32z' fill='%2338eaff'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Arial' font-weight='700' font-size='36' fill='%2303121a'%3E7%3C/text%3E%3C/svg%3E">
+<link rel="canonical" href="https://thedailyseven.com/privacy.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Sora:wght@400;600&display=swap">
+<style>
+/* Same world as the game: deep space, glass panel, cyan edge light. A calm reading page. */
+:root{color-scheme:dark;--bg:#03050d;--panel:rgba(9,15,34,.8);--edge:rgba(90,210,255,.24);--ink:#eaf4ff;--soft:#a3b4d4;--cyan:#38eaff;--disp:"Chakra Petch",ui-monospace,monospace}
+*{box-sizing:border-box;min-width:0}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font:16px/1.65 Sora,system-ui,sans-serif;overflow-x:clip;
+ background:radial-gradient(900px 420px at 18% 0%,rgba(56,234,255,.14),transparent 70%),radial-gradient(800px 420px at 85% 6%,rgba(255,79,163,.12),transparent 70%),linear-gradient(#03050d,#070a1f 70%,#0c0a24);min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 56px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.logo{display:flex;align-items:center;gap:12px;font:700 24px/1 var(--disp);color:var(--ink);text-decoration:none}
+.logo b{display:grid;place-items:center;width:40px;height:40px;font-size:22px;color:#041018;background:linear-gradient(135deg,var(--cyan),#7d8bff);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
+.logo em{font-style:normal;color:var(--cyan)}
+.back{color:var(--cyan);font-weight:600;text-decoration:none;border-bottom:1px dashed var(--cyan);padding:10px 2px 2px}
+main{background:var(--panel);border:1px solid var(--edge);border-radius:18px;padding:clamp(18px,4vw,34px);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+h1{font:700 clamp(30px,6vw,42px)/1.1 var(--disp);margin:0 0 6px}
+h2{font:700 20px/1.2 var(--disp);color:var(--cyan);margin:28px 0 8px}
+p,li{color:var(--ink);max-width:68ch}
+.muted{color:var(--soft);font-size:14px}
+ul{padding-left:1.2em}li{margin:6px 0}
+a{color:var(--cyan)}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--edge);vertical-align:top}
+th{font:600 14px var(--disp);color:var(--soft)}
+.scroll{overflow-x:auto}
+@media(max-width:600px){table{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <header><a class="logo" href="./"><b>7</b><span>The Daily <em>Seven</em></span></a><a class="back" href="./">← Back to the game</a></header>
+ <main>
+  <h1>Privacy</h1>
+  <p class="muted">Last updated 26 November 2026</p>
+  <p>The Daily Seven is a free daily quiz game at thedailyseven.com, run by an individual based in Ireland. This page explains, in plain words, what information the game uses and why. In short: no accounts, no cookies, no ads and no tracking. The only thing that leaves your device is your daily score for the leaderboard.</p>
+
+  <h2>Stored on your own device</h2>
+  <p>The game saves a few things in your browser's local storage so it can remember your game. They stay on your device and are not sent to us:</p>
+  <ul>
+   <li>Today's progress and round scores, so you can come back to an unfinished game.</li>
+   <li>Your streak, games played, best score and practice stats.</li>
+   <li>A random device code (for example <code>3f2a9c1e-…</code>) and your leaderboard name, used for the leaderboard below.</li>
+  </ul>
+  <p>You can delete all of this at any time by clearing this site's data in your browser settings.</p>
+
+  <h2>The worldwide leaderboard</h2>
+  <p>When you finish the daily game, it sends your result to our leaderboard database so it can show your rank and the top 10. We store:</p>
+  <div class="scroll"><table>
+   <tr><th>What</th><th>Why</th></tr>
+   <tr><td>Your leaderboard name (a random “Player 1234” unless you change it)</td><td>Shown publicly in the top 10</td></tr>
+   <tr><td>Your total and round scores, and the puzzle day</td><td>To rank players and work out “you did better than x%”</td></tr>
+   <tr><td>The random device code</td><td>So one device counts once per day and can change its name</td></tr>
+   <tr><td>The time you submitted</td><td>To break ties</td></tr>
+  </table></div>
+  <p>We don't ask for your email, real name or location, and we can't link the device code to you. Your leaderboard name is public, so please don't use your full real name.</p>
+  <p>We do this on the basis of our legitimate interest in running a leaderboard that players expect from a daily game. Scores are kept while the leaderboard runs. To have your entries removed, email us with your leaderboard name and the dates you played.</p>
+
+  <h2>Services that help run the site</h2>
+  <p>Like any website, the services below receive your device's IP address when your browser connects to them. We use them only to deliver the game:</p>
+  <ul>
+   <li><strong>Render</strong>: hosts the website files.</li>
+   <li><strong>Cloudflare</strong>: manages our domain name (DNS).</li>
+   <li><strong>Supabase</strong>: stores the leaderboard database.</li>
+   <li><strong>Google Fonts</strong>: provides the fonts.</li>
+   <li><strong>jsDelivr</strong>: provides the map code used in the map rounds.</li>
+  </ul>
+  <p>Some of these providers may process data outside the EU under their own safeguards. Each has its own privacy policy.</p>
+
+  <h2>Cookies and advertising</h2>
+  <p>The Daily Seven currently uses no cookies, no analytics and no advertising. If that changes, we'll update this page first and ask for your consent where the law requires it.</p>
+
+  <h2>Your rights</h2>
+  <p>Under the GDPR you can ask to see, correct or delete data about you, or object to how we use it. Email us at <a href="mailto:hello@thedailyseven.com">hello@thedailyseven.com</a> (hello@thedailyseven.com). You can also complain to the Irish <a href="https://www.dataprotection.ie">Data Protection Commission</a>.</p>
+
+  <h2>Children</h2>
+  <p>The game is suitable for all ages and collects no personal details. We ask younger players not to use their real name on the leaderboard.</p>
+
+  <h2>Changes</h2>
+  <p>If we change how the game uses data, we'll update this page and the date at the top.</p>
+ </main>
+</div>
+</body>
+</html>
