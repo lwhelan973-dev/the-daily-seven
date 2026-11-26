@@ -589,6 +589,9 @@ function round(i) {
 const CFG = window.D7_CONFIG || {};
 const LB_ON = !!(CFG.supabaseUrl && CFG.supabaseKey);
 let LAST_PCT = null;
+const SUPPORT = /^https:\/\/[^\s"'<>]+$/.test(CFG.supportUrl || '') ? CFG.supportUrl : '';
+const supportBox = () => SUPPORT ? `<a class="support" href="${esc(SUPPORT)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.4 2.6h1.8c.8-1.4 2.3-2.6 4.4-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" fill="currentColor"/></svg><span><b>Enjoying The Daily Seven?</b><em>It's free and ad-free. Chip in to keep it running.</em></span><strong>Support</strong></a>` : '';
+
 async function rpc(fn, args) {
  const h = {'Content-Type': 'application/json', apikey: CFG.supabaseKey};
  if (/^eyJ/.test(CFG.supabaseKey)) h.Authorization = 'Bearer ' + CFG.supabaseKey;
@@ -631,6 +634,7 @@ function results() {
   <div class="hero-r">${ring(S.scores, total, 'of 700')}</div></div>
   <div class="bars">${LINE.map((k, i) => { const c = k.split('.')[0]; return `<div class="bar" style="--c:${col(c)}"><span>${esc(M[k].name)}</span><div class="tr"><i data-w="${S.scores[i] || 0}"></i></div><b>${S.scores[i] || 0}</b></div>`; }).join('')}</div>
   <section class="lb" id="lb" hidden></section>
+  ${supportBox()}
   <div class="row"><button class="btn" id="cp">Copy result</button><a class="btn ghost" href="#practice">Keep playing · practice</a><span class="small" id="cd" style="margin-left:auto"></span></div>`);
  requestAnimationFrame(() => document.querySelectorAll('.bar i').forEach(x => x.style.width = x.dataset.w + '%'));
  board(total);
@@ -675,11 +679,14 @@ function prResults() {
   <div class="stats"><div><b>${Math.max(pb, total)}</b><span>Practice best</span></div><div><b>${played}</b><span>Sets played</span></div><div><b>${PR.set}</b><span>This session</span></div></div></div>
   <div class="hero-r">${ring(PR.scores, total, 'of 700')}</div></div>
   <div class="bars">${PR.line.map((k, i) => `<div class="bar" style="--c:${col(k.split('.')[0])}"><span>${esc(M[k].name)}</span><div class="tr"><i data-w="${PR.scores[i]}"></i></div><b>${PR.scores[i]}</b></div>`).join('')}</div>
+  ${supportBox()}
   <div class="row"><button class="btn" id="again7">Play another seven</button><a class="link" href="#lab">Pick a game in the lab</a><a class="link" href="#">Back to today's daily</a></div>`);
  requestAnimationFrame(() => document.querySelectorAll('.bar i').forEach(x => x.style.width = x.dataset.w + '%'));
  $('#again7').onclick = practiceStart;
 }
 
+function footerSupport() { const f = document.querySelector('footer'); if (SUPPORT && f && !f.querySelector('.fs')) f.insertAdjacentHTML('beforeend', ` · <a class="fs" href="${esc(SUPPORT)}" target="_blank" rel="noopener">Support the game</a>`); }
+footerSupport();
 function route() { if (location.hash === '#practice') return practiceStart(); if (location.hash === '#lab') return lab(); practice = false; PR = null; load(); if (S.scores.length >= 7) results(); else start(); }
 window.addEventListener('hashchange', route);
 route();
